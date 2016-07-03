@@ -1,0 +1,236 @@
+<html>
+<head>
+<link href="heart.css" rel="stylesheet" type="text/css">
+<script src="./node_modules/leancloud-realtime/dist/realtime.browser.js"></script>
+<script>
+var total = 0;
+var total_count = 0;
+var avg = 0;
+function compute_heart_rate() {
+  if (total_count != 0) {
+    avg = total/total_count;
+  }
+  //set(avg);
+  console.log('avg = ' + avg);
+  total = 0;
+  total_count = 0;
+  //avg = 0;
+}
+
+function setItv() {
+  set(avg);
+  console.log('setItv called' + avg);
+}
+window.onload = function(){
+  var CONVERSATION_ID = '57777e7f2e958a00558704ae'
+  var APP_ID = 'pkKqvyfLzVvv9tJAHLeu3EC8-gzGzoHsz'
+
+  //var avg = 0;
+
+
+  var Realtime = AV.Realtime;
+  var realtime = new Realtime({
+    appId: APP_ID,
+    region: 'cn', // 美国节点为 "us"
+  });
+
+
+  realtime.createIMClient('FrontEnd').then(function(tom) {
+    var conversation = tom.getConversation(CONVERSATION_ID);
+    tom.on('message', function(message, conversation) {
+      console.log('Message received: ' + message.text);
+      if(message.text == '+') {
+        //todo +1
+        up();
+        console.log('++');
+      } else if(message.text == '-') {
+        //todo -1
+        down();
+        console.log('--');
+      } else {
+        var cur = parseFloat(message.text);
+        //set(cur);
+        total += cur;
+        total_count++;
+      }
+    });
+    console.log('CONVERSATION_ID: ',CONVERSATION_ID);
+    return conversation;
+  }).then(function(conversation) {
+    return conversation.join();
+  }).then(function(conversation) {
+    console.log('加入成功', conversation.members);
+  }).catch(console.error.bind(console));
+
+  setInterval("compute_heart_rate();", 2000);
+  setInterval("setItv();", 500);
+}
+
+</script>
+</head>
+<body style="height: 100%; margin: 0;padding:0;">
+    <div id="container" style="height: 100%; width: 60%; float: left; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; position: relative; background: transparent;" _echarts_instance_="ec_1467515565366">
+    <div style="position: relative; overflow: hidden; width: 809px; height: 599px; cursor: default;">
+    <canvas width="809" height="599" data-zr-dom-id="zr_0" style="position: absolute; left: 0px; top: 0px; width: 809px; height: 599px; -webkit-user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas></div><div style="position: absolute; display: none; border: 0px solid rgb(51, 51, 51); white-space: nowrap; z-index: 9999999; transition: left 0.4s cubic-bezier(0.23, 1, 0.32, 1), top 0.4s cubic-bezier(0.23, 1, 0.32, 1); border-radius: 4px; color: rgb(255, 255, 255); font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; font-size: 14px; font-family: &quot;Microsoft YaHei&quot;; line-height: 21px; padding: 5px; left: 493px; top: 470px; background-color: rgba(50, 50, 50, 0.701961);">30/5/2273 : 62</div></div>
+  <div id="container2" style="height: 100%; width: 40%; float: right; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; position: relative; background: transparent;" _echarts_instance_="ec_1467515565367"><div style="position: relative; overflow: hidden; width: 540px; height: 599px; cursor: default;"><canvas width="540" height="599" data-zr-dom-id="zr_0" style="position: absolute; left: 0px; top: 0px; width: 540px; height: 599px; -webkit-user-select: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></canvas></div><div></div></div>
+  <div class="like"></div>
+  <div class="heart"><span class="heartbeat"></span></div>
+
+
+    <script type="text/javascript" src="echarts-all-3.js"></script>
+    <script type="text/javascript" src="dataTool.min.js"></script>
+
+    <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+var HandsUp=0;
+var HeartRate=60;
+function set(t)
+{
+if(t<60) t=Math.random()*8+65;
+t = Math.random() - 0.5 + t;
+HeartRate=t;
+}
+
+option = null;
+function randomData() {
+ now = new Date(+now + oneDay);
+ value =HeartRate;
+ return {
+     name: now.toString(),
+     value: [
+         [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-'),
+         Math.round(value)
+     ]
+ }
+}
+
+var data = [];
+var now = +new Date(1997, 9, 3);
+var oneDay = 24 * 3600 * 1000;
+var value = 0;
+for (var i = 0; i < 1000; i++) {
+ data.push(randomData());
+}
+
+option = {
+textStyle:{
+ fontSize: 39
+},
+ title: {
+     text: ''
+ },
+ tooltip: {
+     trigger: 'axis',
+     formatter: function (params) {
+         params = params[0];
+         var date = new Date(params.name);
+         return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
+     },
+     axisPointer: {
+         animation: false
+     }
+ },
+ xAxis: {
+     type: 'time',
+ show:false,
+     splitLine: {
+         show: false
+     }
+ },
+ yAxis: {
+ axisLine:{show:false},
+ axisTick:{show:false},
+ axisLabel:{show:false},
+
+     type: 'value',
+     boundaryGap: ['20%', '80%'],
+ minInterval: 1,
+ min:50,
+     splitLine: {
+         show: false
+     }
+ },
+ series: [{
+     name: '模拟数据',
+     type: 'line',
+     showSymbol: false,
+     hoverAnimation: false,
+     data: data
+ }]
+};
+
+app.timeTicket = setInterval(function () {
+
+ for (var i = 0; i < 5; i++) {
+     data.shift();
+     data.push(randomData());
+ }
+
+ myChart.setOption({
+     series: [{
+         data: data,
+    markLine: {
+             data: [
+                 {type: 'average', name: '平均值'}
+             ]
+         }
+
+     }]
+ });
+}, 100);
+
+
+if (option && typeof option === "object") {
+ myChart.setOption(option, true);
+}
+    </script>
+  <script type="text/javascript">
+var dom2 = document.getElementById("container2");
+var myChart2 = echarts.init(dom2);
+var app2 = {};
+var HandsUp=0;
+
+function up(){HandsUp=HandsUp+1;}
+function down(){if(HandsUp!=0)HandsUp=HandsUp-1;}
+
+
+
+option2 = null;
+option2 = {
+
+ tooltip : {
+     formatter: "{a} <br/>{b} : {c}%"
+ },
+
+ series: [
+     {
+   axisLabel:{show:false},
+   axisLine:{lineStyle :{color :[[0.2, '#049FF1'], [0.8, '#065FB9'], [1, '#04477C']]}},
+         name: '',
+   min:0,
+   max:5,
+   splitNumber:5,
+         type: 'gauge',
+         detail: {formatter:'{value}',textStyle:{fontSize:70}},
+         data: [{value: 0, name: ''}]
+     }
+ ]
+};
+
+app2.timeTicket = setInterval(function () {
+ option2.series[0].data[0].value = HandsUp;
+ myChart2.setOption(option2, true);
+},500);
+
+
+
+
+if (option2 && typeof option2 === "object") {
+ myChart2.setOption(option2, true);
+}
+    </script>
+
+</body>
+</html>
